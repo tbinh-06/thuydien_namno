@@ -163,13 +163,24 @@
   .t-app{background:#fbe9e3;color:#a83a1c} .c-app{background:#d8542f}
   .leg{font-size:11.5px;color:var(--muted);padding:8px 16px 0} .leg b{color:var(--ink)}
   @media(max-width:720px){.blocks{grid-template-columns:1fr}.dept{min-width:0}}
+  /* report grid (báo cáo về công ty mẹ) */
+  .rgcap{font-size:12px;color:var(--muted);margin:2px 0 10px}
+  .rgcap b{color:var(--ink)}
+  .rgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media(max-width:680px){.rgrid{grid-template-columns:1fr}}
+  .rcard{border:1px solid var(--border);border-radius:12px;overflow:hidden;background:#fff}
+  .rcard .rh{padding:10px 14px;font-weight:700;font-size:13.5px;color:#fff;display:flex;align-items:center;gap:8px}
+  .rcard .rh .rn{background:rgba(255,255,255,.25);border-radius:50%;width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center;font-size:12px;flex:0 0 auto}
+  .rcard.g-fin .rh{background:#2e7fc4}.rcard.g-ops .rh{background:#178a8a}.rcard.g-hr .rh{background:#0e9f6e}.rcard.g-legal .rh{background:#7c5cbf}
+  .rcard ul{margin:0;padding:10px 16px 12px 30px}
+  .rcard li{margin:5px 0;font-size:12.5px;color:var(--ink)}
+  .rcard .rfoot{padding:0 14px 11px;font-size:11px;color:var(--muted)}
 </style>
 </head>
 <body>
 
 <div class="head">
   <h1>Sơ đồ luồng vận hành & dữ liệu — Cụm Thủy điện Nậm Na</h1>
-  <p>Chọn luồng ở tab · bấm khối luồng lớn để xem các bước · đổi giữa "Luồng vận hành" và "Luồng dữ liệu"</p>
 </div>
 
 <div class="org" id="org">
@@ -177,7 +188,6 @@
     <button class="orgbtn" id="orgToggle">Thu gọn ▾</button></div>
   <div id="orgBody"></div>
 </div>
-<div class="leg">Ô <b>tô xanh</b> = phòng ban tham gia luồng · <b>số cam</b> = thứ tự bước chạy qua phòng đó.</div>
 
 <div class="tabs" id="tabs"></div>
 <div class="panel" id="panel"></div>
@@ -294,45 +304,31 @@ const FLOWS = [
     {d:'qt_tckt', a:'Tính lương theo công', inp:'Dữ liệu chấm công; đơn giá/hệ số lương; phụ cấp ca đêm/độc hại', neck:'Tính tay, đối chiếu thủ công', sol:'Lương tự tính từ chấm công số', tools:['base-hrm']},
     {d:'m_hcns', a:'Tổng hợp nhân sự cấp cụm', inp:'Dữ liệu chấm công / lương / năng suất của 3 NM', neck:'Cộng tay 3 NM', sol:'Dashboard nhân sự / năng suất cụm', tools:['data-bi']},
   ]},
-  {id:'f7', name:'7. Báo cáo tài chính & sản lượng → công ty mẹ', summary:'Mỗi pháp nhân (nhà máy) gửi sản lượng & tài chính → Moonlight hợp nhất BCTC tập đoàn. Bài toán holding: gom số liệu nhiều pháp nhân bằng Excel, thiếu realtime.', steps:[
-    {d:'cm_ttd', a:'Nhà máy chốt sản lượng điện thực tế / kế hoạch (kWh)', inp:'Chỉ số công tơ đo đếm; kế hoạch huy động; sản lượng SCADA (đối chiếu)', neck:'Mỗi nhà máy một mẫu, gửi rời rạc', sol:'Chuẩn hóa số liệu sản lượng, đẩy tự động về công ty mẹ', tools:['data-pipeline']},
-    {d:'qt_tckt', a:'Tính doanh thu PPA từng nhà máy', inp:'Sản lượng đã đối soát; giá & công thức PPA', neck:'Nhập tay theo từng pháp nhân', sol:'Liên kết sản lượng ↔ doanh thu, chuẩn hóa toàn tập đoàn', tools:['base-service','data-bi']},
-    {d:'qt_tckt', a:'Tổng hợp chi phí O&M & sửa chữa lớn', inp:'Chi phí vận hành, bảo trì, sửa chữa lớn của nhà máy', neck:'Rời rạc, không gắn hạng mục', sol:'Gom chi phí theo hạng mục, chuẩn cho 3 nhà máy', tools:['data-bi']},
-    {d:'m_tckt', a:'Moonlight hợp nhất BCTC quý / năm toàn tập đoàn', inp:'BCTC & doanh thu từng pháp nhân (3 NM, sau này có SPV ĐMT)', neck:'Cộng tay nhiều pháp nhân, không realtime', sol:'Lớp hợp nhất đọc dữ liệu tự động về công ty mẹ', tools:['data-pipeline','data-bi']},
-    {d:'m_bgd', a:'Ban lãnh đạo holding theo dõi tài chính – sản lượng', inp:'KPI tài chính & sản lượng hợp nhất', neck:'Báo cáo tĩnh, chậm', sol:'Dashboard tài chính – sản lượng real-time', tools:['data-bi']},
-  ], approaches:[
-      {ready:true, tag:'Báo cáo chuyên sâu', title:'Dashboard Sản lượng – Doanh thu – Năng suất',
-       desc:'Báo cáo tài chính & sản lượng lên công ty mẹ: mức đạt kế hoạch sản lượng/doanh thu, phân rã nguyên nhân, chi phí, năng suất tới cấp tổ máy.',
-       pros:['Sản lượng kWh KH/TT + doanh thu PPA từng nhà máy','Chi phí O&M / sửa chữa lớn','Tô màu theo ngưỡng để tự đánh giá'],
-       cons:['Cần kết nối đo đếm + SCADA + Base của từng pháp nhân'],
-       link:'dashboard_muc7_phan_tich_nam_na.html', linkLabel:'Mở dashboard Tài chính – Sản lượng'},
-  ]},
-  {id:'f8', name:'8. Báo cáo vận hành & kỹ thuật → công ty mẹ', summary:'Báo cáo kỹ thuật từ các nhà máy về holding: hệ số sẵn sàng tổ máy, tình trạng hồ chứa, sự cố/dừng máy, kiểm định thiết bị.', steps:[
-    {d:'cm_scada', a:'Ghi nhận hệ số sẵn sàng tổ máy (availability %)', inp:'Trạng thái tổ máy; giờ vận hành/dừng (từ SCADA)', neck:'Tổng hợp availability bằng tay', sol:'Tự tính hệ số sẵn sàng từ dữ liệu SCADA', tools:['data-pipeline']},
-    {d:'cm_atd', a:'Báo cáo tình trạng hồ chứa & lưu lượng nước về', inp:'Mực nước hồ; lưu lượng nước về (Q đến); lượng xả', neck:'Quan trắc rời, ghi tay', sol:'Gom quan trắc hồ chứa realtime', tools:['data-appsheet','data-pipeline']},
-    {d:'kt_pxsc', a:'Thống kê sự cố & thời gian dừng máy (downtime)', inp:'Nhật ký sự cố; thời gian & nguyên nhân dừng máy', neck:'Sổ tay, khó truy vết', sol:'Nhật ký sự cố / downtime điện tử', tools:['base-service']},
-    {d:'kt_ktat', a:'Tổng hợp kết quả kiểm định thiết bị định kỳ', inp:'Biên bản kiểm định; hạn kiểm định thiết bị', neck:'Lưu giấy, dễ quá hạn', sol:'Hồ sơ kiểm định số có nhắc hạn tự động', tools:['base-service']},
-    {d:'m_kt', a:'Moonlight hợp nhất KPI kỹ thuật 3 nhà máy', inp:'KPI vận hành – kỹ thuật đã chuẩn hóa của 3 NM', neck:'Không so sánh được giữa các pháp nhân', sol:'Dashboard vận hành – kỹ thuật hợp nhất', tools:['data-bi']},
-  ], approaches:[
-      {ready:true, tag:'Báo cáo chuyên sâu', title:'Dashboard Vận hành & Kỹ thuật hợp nhất',
-       desc:'Báo cáo vận hành & kỹ thuật lên công ty mẹ: hệ số sẵn sàng, sự cố/downtime, độ khả dụng và tình trạng kỹ thuật 3 nhà máy.',
-       pros:['Hệ số sẵn sàng & độ khả dụng theo nhà máy','Sự cố / downtime 6 tháng','Tô màu theo ngưỡng, có ghi chú nguồn'],
-       cons:['Cần kết nối SCADA + nhật ký kỹ thuật của 3 NM'],
-       link:'dashboard_dieu_hanh_cum_nam_na.html', linkLabel:'Mở dashboard điều hành (vận hành & kỹ thuật)'},
-  ]},
-  {id:'f9', name:'9. Báo cáo hợp nhất tập đoàn → công ty mẹ Moonlight', summary:'Gom 4 luồng báo cáo (tài chính–sản lượng · vận hành–kỹ thuật · nhân sự–lao động · pháp lý–tuân thủ) từ các pháp nhân về công ty mẹ — bài toán số 1 của holding.', steps:[
-    {d:'m_tckt', a:'① Luồng tài chính & sản lượng', inp:'Từ mục 7: sản lượng (kWh), doanh thu PPA, chi phí O&M, BCTC từng pháp nhân', neck:'Nhiều đầu mối gom Excel thủ công', sol:'Đẩy tự động về lớp hợp nhất', tools:['data-pipeline']},
-    {d:'m_kt', a:'② Luồng vận hành & kỹ thuật', inp:'Từ mục 8: hệ số sẵn sàng, hồ chứa, sự cố/downtime, kiểm định', neck:'Mỗi nhà máy một định dạng', sol:'KPI kỹ thuật chuẩn hóa toàn cụm', tools:['data-bi']},
-    {d:'m_hcns', a:'③ Luồng nhân sự & lao động', inp:'Nhân sự 3 NM + HQ Hà Nội; ca trực 24/7; OT, phụ cấp vùng sâu; BHXH tập đoàn; biến động & đào tạo', neck:'Đa pháp nhân – đa địa điểm; lương OT / hệ số vùng tính tay', sol:'Base HRM đa pháp nhân/địa điểm; chấm công & lương theo đặc thù vùng núi', tools:['base-hrm']},
-    {d:'kt_ktat', a:'④ Luồng pháp lý & tuân thủ', inp:'Báo cáo môi trường Bộ TNMT; an toàn đập – hồ chứa (NĐ 114); giấy phép vận hành, kiểm định điện; báo cáo EVN/NLDC sản lượng', neck:'Theo dõi hạn báo cáo/giấy phép thủ công, rủi ro quá hạn', sol:'Quy trình tuân thủ có nhắc hạn + lưu hồ sơ tập trung', tools:['base-service']},
-    {d:'m_cntt', a:'Lớp hợp nhất đọc dữ liệu các pháp nhân tự động', inp:'4 luồng báo cáo của các pháp nhân (3 NM + HQ, mở rộng SPV ĐMT)', neck:'Gom Excel thủ công, không realtime', sol:'Pipeline hợp nhất tập đoàn (mở rộng được khi thêm SPV)', tools:['data-pipeline']},
-    {d:'m_bgd', a:'Ban lãnh đạo holding xem dashboard hợp nhất real-time', inp:'KPI hợp nhất 4 luồng toàn tập đoàn', neck:'Thiếu dashboard real-time về công ty mẹ', sol:'Dashboard điều hành tập đoàn cho lãnh đạo kiêm nhiệm', tools:['data-bi']},
+  {id:'f7', name:'7. Báo cáo về công ty mẹ', summary:'Bốn nhóm báo cáo từ các pháp nhân (3 nhà máy Lai Châu + HQ Hà Nội) hợp nhất về công ty mẹ Moonlight — bài toán số 1 của holding: nhiều pháp nhân/địa điểm, gom Excel thủ công, thiếu dashboard real-time.',
+    reportGroups:[
+      {title:'Báo cáo tài chính & sản lượng', cls:'g-fin', d:'m_tckt', items:['Sản lượng điện thực tế / kế hoạch (kWh)','Doanh thu PPA từng nhà máy','BCTC quý/năm → hợp nhất tập đoàn','Chi phí O&M, sửa chữa lớn']},
+      {title:'Báo cáo vận hành & kỹ thuật', cls:'g-ops', d:'m_kt', items:['Hệ số sẵn sàng tổ máy (availability %)','Tình trạng hồ chứa, lưu lượng nước về','Sự cố, thời gian dừng máy (downtime)','Kết quả kiểm định thiết bị định kỳ']},
+      {title:'Báo cáo nhân sự & lao động', cls:'g-hr', d:'m_hcns', items:['Nhân sự 3 nhà máy + HQ Hà Nội','Ca trực 24/7: chấm công, OT, lương','Phụ cấp vùng sâu, BHXH tập đoàn','Biến động nhân sự, đào tạo kỹ thuật']},
+      {title:'Báo cáo pháp lý & tuân thủ', cls:'g-legal', d:'kt_ktat', items:['Báo cáo môi trường Bộ TNMT định kỳ','An toàn đập, hồ chứa (Nghị định 114)','Giấy phép vận hành, kiểm định điện','Báo cáo EVN/NLDC sản lượng điện']},
+    ],
+    steps:[
+    {d:'m_tckt', a:'① Tài chính & sản lượng', inp:'Sản lượng (kWh) KH/TT, doanh thu PPA, chi phí O&M, BCTC từng pháp nhân', neck:'Nhiều đầu mối gom Excel thủ công', sol:'Chuẩn hóa & đẩy tự động về công ty mẹ', tools:['data-pipeline','data-bi']},
+    {d:'m_kt', a:'② Vận hành & kỹ thuật', inp:'Hệ số sẵn sàng, hồ chứa/lưu lượng, sự cố/downtime, kiểm định', neck:'Mỗi nhà máy một định dạng', sol:'KPI kỹ thuật chuẩn hóa toàn cụm', tools:['data-pipeline','data-bi']},
+    {d:'m_hcns', a:'③ Nhân sự & lao động', inp:'Nhân sự 3 NM + HQ; ca 24/7; OT, phụ cấp vùng; BHXH; đào tạo', neck:'Đa pháp nhân/địa điểm; lương OT, hệ số vùng tính tay', sol:'Base HRM đa pháp nhân/địa điểm', tools:['base-hrm']},
+    {d:'kt_ktat', a:'④ Pháp lý & tuân thủ', inp:'Môi trường (Bộ TNMT); an toàn đập (NĐ 114); giấy phép/kiểm định; báo cáo EVN/NLDC', neck:'Theo dõi hạn thủ công, rủi ro quá hạn', sol:'Quy trình tuân thủ có nhắc hạn + lưu hồ sơ tập trung', tools:['base-service']},
+    {d:'m_cntt', a:'Lớp hợp nhất đọc dữ liệu các pháp nhân tự động', inp:'4 nhóm báo cáo (3 NM + HQ, mở rộng SPV ĐMT)', neck:'Gom Excel thủ công, không realtime', sol:'Pipeline hợp nhất tập đoàn, mở rộng được khi thêm SPV', tools:['data-pipeline']},
+    {d:'m_bgd', a:'Ban lãnh đạo holding xem dashboard hợp nhất real-time', inp:'KPI hợp nhất 4 nhóm toàn tập đoàn', neck:'Thiếu dashboard real-time về công ty mẹ', sol:'Dashboard điều hành tập đoàn cho lãnh đạo kiêm nhiệm', tools:['data-bi']},
   ], approaches:[
       {ready:true, tag:'Báo cáo chuyên sâu', title:'Dashboard điều hành hợp nhất tập đoàn',
-       desc:'Báo cáo hợp nhất lên công ty mẹ Moonlight: gom 4 luồng từ các pháp nhân về một màn hình điều hành — một chỗ nhìn ra toàn tập đoàn.',
+       desc:'Báo cáo hợp nhất lên công ty mẹ Moonlight: gom các nhóm báo cáo từ các pháp nhân về một màn hình điều hành — một chỗ nhìn ra toàn tập đoàn.',
        pros:['Hợp nhất tự động nhiều pháp nhân/SPV','So sánh & xếp hạng theo KPI','Mở rộng được khi thêm dự án ĐMT'],
        cons:['Cần chuẩn hóa báo cáo & cấp quyền dữ liệu từ các pháp nhân'],
        link:'dashboard_dieu_hanh_cum_nam_na.html', linkLabel:'Mở dashboard điều hành hợp nhất'},
+      {ready:true, tag:'Chi tiết tài chính – sản lượng', title:'Dashboard Sản lượng – Doanh thu – Năng suất',
+       desc:'Bản đào sâu cho nhóm tài chính & sản lượng: đạt kế hoạch, phân rã nguyên nhân, chi phí, năng suất tới cấp tổ máy.',
+       pros:['Đến cấp tổ máy (8 tổ)','Đối soát PPA đo đếm / SCADA / EVN','Tô màu theo ngưỡng để tự đánh giá'],
+       cons:['Cần kết nối đo đếm + SCADA + Base của từng pháp nhân'],
+       link:'dashboard_muc7_phan_tich_nam_na.html', linkLabel:'Mở dashboard Sản lượng & Năng suất'},
   ]},
 ];
 
@@ -432,6 +428,14 @@ function bigFlows(f){
   return groups;
 }
 function selectBig(i){ curBig=i; renderPanel(); }
+function reportGrid(f){
+  const cards = f.reportGroups.map((g,i)=>`
+    <div class="rcard ${g.cls}">
+      <div class="rh"><span class="rn">${i+1}</span>${g.title}</div>
+      <ul>${g.items.map(it=>`<li>${it}</li>`).join('')}</ul>
+    </div>`).join('');
+  return `<div class="rgcap">3 nhà máy Lai Châu + Văn phòng Hà Nội → hợp nhất về <b>Công ty mẹ Moonlight</b></div><div class="rgrid">${cards}</div>`;
+}
 function approachesView(f){
   return `<div class="appr">` + f.approaches.map(a=>`
     <div class="appr-card${a.ready?'':' soon'}">
@@ -462,6 +466,9 @@ function renderPanel(){
     hint = f.approaches.length>1
       ? `${f.approaches.length} phương án triển khai cho luồng này — chọn theo mức độ bài bản và nguồn lực.`
       : 'Phương án triển khai cho luồng này.';
+  } else if(!implMode && f.reportGroups){
+    body = reportGrid(f);
+    hint = 'Bốn nhóm báo cáo từ các pháp nhân gửi về công ty mẹ — bấm "Phương án triển khai" để xem dashboard.';
   } else {
     const big=bigFlows(f);
     if(big){
@@ -481,14 +488,13 @@ function renderPanel(){
   }
   $('#panel').innerHTML = `
     <div class="ptitle"><h2>${f.name}</h2>
-      <span class="chip">${f.steps.length} bước</span>
+      <span class="chip">${f.reportGroups ? f.reportGroups.length+' nhóm báo cáo' : f.steps.length+' bước'}</span>
       <button class="play" id="playBtn">▶ Chạy luồng qua phòng ban</button></div>
     <div class="psum">${f.summary}</div>
     <div class="modeseg">
       <button class="mbtn${mode==='vh'?' on':''}" data-m="vh">⚙ Luồng vận hành</button>
       <button class="mbtn${mode==='data'?' on':''}" data-m="data">🛠 Phương án triển khai</button>
     </div>
-    <div class="modehint">${hint}</div>
     ${legend}${body}${sched}`;
   $('.modeseg').addEventListener('click', e=>{ const b=e.target.closest('.mbtn'); if(!b)return; mode=b.dataset.m; renderPanel(); });
   $('#playBtn').onclick = ()=>playFlow(f);
