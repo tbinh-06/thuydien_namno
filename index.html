@@ -298,11 +298,17 @@ const FLOWS = [
     {d:'kt_pxsc', a:'Khắc phục sự cố', inp:'Kết luận RCA; phương án khắc phục; vật tư', neck:'Sự cố tương tự lặp lại', sol:'Liên kết RCA ↔ kế hoạch bảo trì phòng ngừa', tools:['base-service']},
     {d:'m_kt', a:'Báo cáo sự cố cấp cụm', inp:'Biên bản sự cố; kết quả RCA đã chuẩn hóa', neck:'Bài học không lan tỏa giữa 3 NM', sol:'Kho RCA chung & dashboard sự cố toàn cụm', tools:['data-bi']},
   ]},
-  {id:'f6', name:'6. Ca, kíp, chấm công, lương', summary:'Phân ca, chấm công, tính lương, gắn năng suất với sản xuất.', steps:[
+  {id:'f6', name:'6. Công ca & Đánh giá hiệu suất', summary:'Phân ca, chấm công, tính lương, gắn năng suất với sản xuất.', steps:[
     {d:'qt_hcns', a:'Phân ca, chấm công', inp:'Lịch ca/kíp; danh sách nhân sự; thời gian vào/ra ca', neck:'Giấy / Excel, dễ sai sót', sol:'Phân ca & chấm công số (kể cả mobile)', tools:['base-hrm']},
     {d:'kt_pxvh', a:'Xác nhận ca trực & sự kiện trong ca', inp:'Bảng phân ca; sự kiện vận hành trong ca (từ SCADA)', neck:'Năng suất không gắn sản lượng / số sự cố', sol:'Gắn năng suất ca với dữ liệu vận hành SCADA', tools:['data-bi']},
     {d:'qt_tckt', a:'Tính lương theo công', inp:'Dữ liệu chấm công; đơn giá/hệ số lương; phụ cấp ca đêm/độc hại', neck:'Tính tay, đối chiếu thủ công', sol:'Lương tự tính từ chấm công số', tools:['base-hrm']},
     {d:'m_hcns', a:'Tổng hợp nhân sự cấp cụm', inp:'Dữ liệu chấm công / lương / năng suất của 3 NM', neck:'Cộng tay 3 NM', sol:'Dashboard nhân sự / năng suất cụm', tools:['data-bi']},
+  ], approaches:[
+      {ready:true, tag:'Đánh giá hiệu suất (BSC)', title:'Dashboard Đánh giá nhân sự theo BSC',
+       desc:'Đánh giá hiệu suất toàn bộ CBCNV theo 4 khía cạnh BSC (Kết quả · Khách hàng · Quy trình · Học hỏi), drill-down đơn vị → phòng ban → từng người, KPI chi tiết theo ngày (daily) và cảnh báo nhân sự.',
+       pros:['Heatmap đơn vị → phòng ban → nhân sự','KPI chi tiết + logic tính theo ngày','Bản đồ sao, so sánh 3 Nậm Na, cảnh báo nhân sự'],
+       cons:['Cần dữ liệu chấm công / KPI từ Base HRM của từng pháp nhân'],
+       link:'dashboard_danh_gia_nhan_su_moonlight.html', linkLabel:'Mở dashboard Đánh giá hiệu suất'},
   ]},
   {id:'f7', name:'7. Báo cáo về công ty mẹ', summary:'Bốn nhóm báo cáo từ các pháp nhân (3 nhà máy Lai Châu + HQ Hà Nội) hợp nhất về công ty mẹ Moonlight — bài toán số 1 của holding: nhiều pháp nhân/địa điểm, gom Excel thủ công, thiếu dashboard real-time.',
     reportGroups:[
